@@ -1,4 +1,7 @@
 cd /linux
+echo $_UID
+echo $_GID
+
 KERNEL=kernel7
 make O=/out ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- bcm2709_defconfig -j8
 make O=/out ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage modules dtbs -j8
@@ -16,4 +19,4 @@ cp arch/arm/boot/dts/overlays/README /mnt/fat32/overlays/
 
 mv /mnt $OUT
 
-chown -R $OUT $_UID $_GID
+chown -R $_UID $_GID $OUT 
