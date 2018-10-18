@@ -15,3 +15,5 @@ cp arch/arm/boot/dts/overlays/*.dtb* /mnt/fat32/overlays/
 cp arch/arm/boot/dts/overlays/README /mnt/fat32/overlays/
 
 mv /mnt $OUT
+
+chown -R $OUT $_UID $_GID
