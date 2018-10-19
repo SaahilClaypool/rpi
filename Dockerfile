@@ -2,7 +2,7 @@
 FROM ubuntu:bionic
 
 # build essentials
-RUN apt -q -y update && apt -q -y install git bc build-essential
+RUN apt -q -y update && apt -q -y install git bc build-essential kmod
 
 # raspberry pi cross compile toolchains
 RUN git clone https://github.com/raspberrypi/tools ~/tools

@@ -4,10 +4,12 @@ echo $_GID
 
 KERNEL=kernel7
 make mrproper
-make O=/out ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- bcm2709_defconfig -j8
-make O=/out ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage modules dtbs -j8
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- bcm2709_defconfig -j8
+make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage modules dtbs -j8
+
 mkdir /build
 mkdir /build/fat32
+mkdir /build/fat32/overlays/
 mkdir /build/ext4
 
 make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- INSTALL_MOD_PATH=/build/ext4 modules_install -j8
