@@ -20,6 +20,7 @@ cp arch/arm/boot/dts/*.dtb /build/fat32/
 cp arch/arm/boot/dts/overlays/*.dtb* /build/fat32/overlays/
 cp arch/arm/boot/dts/overlays/README /build/fat32/overlays/
 
+rm -rf $OUT/build
 mv /build $OUT
 
 chown -R $_UID:$_GID $OUT 
