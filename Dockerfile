@@ -2,7 +2,7 @@
 FROM ubuntu:bionic
 
 # build essentials
-RUN apt -q -y update && apt -q -y install git bc build-essential kmod
+RUN apt -q -y update && apt -q -y install git bc build-essential kmod flex bison libssl-dev libncurses5-dev qt4-default qt4-dev-tools
 
 # raspberry pi cross compile toolchains
 RUN git clone https://github.com/raspberrypi/tools ~/tools
