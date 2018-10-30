@@ -3,31 +3,37 @@
 To create the raspberry pi testbed, we needed to set up two subnets. Each subnet of contains 4 raspberry pis connected to switch. Each switch is then connected to a separate network interface on the ubuntu router. The router is responsible for handling routing between these to subnets. 
 
 ```
-churro1 --| 
+churro1 --+ 
           |                         
-churro2 ---  |------|                         
-          |->|switch| ---                         
-churro3 ---  |------|    |                         
+churro2 --+  +------+                         
+          +->|switch|----+                        
+churro3 --+  +------+    |                         
           |              |                         
-churr04 --|              |                         
-                         |     |----------------|                         
+churr04 --+              |                         
+                         |     +----------------+                         
                          |     |                |                         
-                         <---->| enp5s0         |                         
+                         +<--->| enp5s0         |                         
                                |                |                         
                                | horno    enp4s0|--> WAN
                                |                |                         
-                         <---->| enp3s0         |                         
+                         +<--->| enp3s0         |                         
                          |     |                |                         
-                         |     |----------------|                         
-tarta1 ---|              |                             
+                         |     +----------------+                         
+tarta1 ---+              |                             
           |              |                           
-tarta2 ----  |------|    |                                  
-          |->|switch| -- |                                   
-tarta3 ----  |------|                                   
+tarta2 ---+  +------+    |                                  
+          +->|switch|----+                                   
+tarta3 ---+  +------+                                   
           |                         
-tarta4 ---|                                         
+tarta4 ---+                                         
 
 ```
+## Overview
+
+1. Netplan to configure routes
+2. DHCP configuration
+3. IP Forwarding & NAT
+
 ## Requirements
 
 ### Hardware
