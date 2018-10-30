@@ -1,0 +1,37 @@
+# Let NetworkManager manage all devices on this system
+network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+    enp3s0: # bay 1 - tarta
+      dhcp4: no
+      dhcp6: no
+      match:
+        macaddress: 00:0a:f7:0e:ff:c3
+      addresses:
+        - 192.168.1.100/24
+      routes:
+        - to: 192.168.1.0/24
+          via: 192.168.1.100
+          metric: 100
+    enp5s0: # bay 2 - manzana
+      dhcp4: no
+      dhcp6: no
+      match:
+        macaddress: 00:0a:f7:16:80:7f
+      addresses:
+        - 192.168.2.100/24
+      routes:
+        - to: 192.168.2.0/24
+          via: 192.168.2.100
+          metric: 100
+    enp4s0: # WAN
+      match:
+        macaddress: 5c:f9:dd:6a:e7:77
+      dhcp4: true
+      dhcp6: true
+      routes:
+        - to: 0.0.0.0/0
+          via: 0.0.0.0/0
+          metric: 50
+
