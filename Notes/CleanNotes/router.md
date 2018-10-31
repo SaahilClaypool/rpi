@@ -141,3 +141,20 @@ apt-get install iptables-persistent
 netfilter-persistent save
 netfilter-persistent reload
 ```
+
+## Firewall
+
+To set up the firewall (ufw), we need to allow packet forwarding between the two subnets. This can be done by editting `/etc/default/ufw` and changing `DEFAULT_FORWARD_POLICY` to `DEFAULT_FORWARD_POLICY="ACCEPT"`. Additionally, make sure everything else is "REJECT". 
+
+Enable the firewall with `sudo ufw enable`. Update the rules with 
+
+```sh
+sudo ufw enable
+sudo ufw allow from 192.168.2.0/24 
+sudo ufw allow from 192.168.1.0/24 
+sudo ufw allow from 130.215.0.0/16 
+sudo ufw allow from 134.174.0.0/16 
+sudo ufw allow from 71.174.237.0/24
+sudo ufw allow 22/tcp
+sudo ufw status
+```
