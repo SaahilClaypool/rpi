@@ -1,0 +1,27 @@
+{
+    "local": {
+        "cc": "cubic",
+        "commands": [
+        ]
+    },
+    "pi@tarta2": {
+        "cc": "bbr",
+        "commands": [
+        ]
+    },
+    "pi@churro2": {
+        "cc": "bbr1",
+        "commands": [
+        ]
+    },
+    "pi@tarta1": {
+        "cc": "cubic",
+        "commands": [
+        ]
+    },
+    "pi@churro1": {
+        "cc": "cubic",
+        "commands": [
+        ]
+    }
+}

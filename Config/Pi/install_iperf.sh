@@ -5,3 +5,4 @@ wget https://iperf.fr/download/ubuntu/iperf3_3.1.3-1_armhf.deb
 wget https://iperf.fr/download/ubuntu/libiperf0_3.1.3-1_armhf.deb
 sudo dpkg -i libiperf0_3.1.3-1_armhf.deb iperf3_3.1.3-1_armhf.deb 
 rm libiperf0_3.1.3-1_armhf.deb iperf3_3.1.3-1_armhf.deb
+sudo apt install tcpdump
