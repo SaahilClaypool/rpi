@@ -1,1 +1,0 @@
-sudo tc qdisc del dev enp5s0 root

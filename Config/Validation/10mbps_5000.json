@@ -1,0 +1,93 @@
+{
+    "name": "10mbps_5000",
+    "setup": {
+        "local": {
+            "cc": "cubic",
+            "commands": [
+                "sudo sh 10mbps_enp3.sh"
+            ]
+        },
+        "pi@tarta2": {
+            "cc": "bbr1",
+            "commands": [
+                "iperf3 -s &",
+                "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
+            ]
+        },
+        "pi@churro2": {
+            "cc": "bbr1",
+            "commands": [
+                "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
+            ]
+        },
+        "pi@tarta1": {
+            "cc": "cubic",
+            "commands": [
+                "iperf3 -s &",
+                "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
+            ]
+        },
+        "pi@churro1": {
+            "cc": "cubic",
+            "commands": [
+                "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
+            ]
+        }
+    },
+    "run": {
+        "local": {
+            "commands": [
+            ]
+        },
+        "pi@tarta2": {
+            "commands": [
+            ]
+        },
+        "pi@churro2": {
+            "commands": [
+                "iperf3 -c tarta2 -t 15"
+            ]
+        },
+        "pi@tarta1": {
+            "commands": [
+            ]
+        },
+        "pi@churro1": {
+            "commands": [
+                "iperf3 -c tarta1 -t 15"
+            ]
+        }
+    }, 
+    "finish": {
+        "local": {
+            "commands": [
+                "sudo sh 10mbps_enp3_off.sh",
+                "sudo tc -s qdisc ls dev enp3s0"
+            ]
+        },
+        "pi@tarta2": {
+            "commands": [
+                "sudo killall iperf3",
+                "sudo killall tcpdump"
+            ]
+        },
+        "pi@churro2": {
+            "commands": [
+                "sudo killall iperf3",
+                "sudo killall tcpdump"
+            ]
+        },
+        "pi@tarta1": {
+            "commands": [
+                "sudo killall iperf3",
+                "sudo killall tcpdump"
+            ]
+        },
+        "pi@churro1": {
+            "commands": [
+                "sudo killall iperf3",
+                "sudo killall tcpdump"
+            ]
+        }
+    }
+}
