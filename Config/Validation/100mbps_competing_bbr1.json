@@ -1,6 +1,6 @@
 {
     "name": "100mbps_compete_bbr1",
-    "time": 45,
+    "time": 200,
     "setup": {
         "local": {
             "cc": "cubic",
