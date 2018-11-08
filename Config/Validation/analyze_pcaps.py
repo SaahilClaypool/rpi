@@ -13,7 +13,7 @@ Usage:
 """
 
 def main():
-    testcap = open('./Results/100mbps_compete_bbr1_bbr1_pi@tarta1.pcap', 'rb')
+    testcap = open('./sample_pcap.pcap', 'rb')
 
     capfile = savefile.load_savefile(testcap, verbose=True)
 
@@ -41,7 +41,7 @@ def goodput_per_packet(packets, sender_src, sender_dst) -> list((any, int)):
     Each time packet arrives, add data (recieved amount, time)
     """
     acked_data = [] # list of (bytes, time)
-    _limit = 100
+    _limit = -100
     for idx, packet in enumerate(packets):
         (eth_f, ip_p, tcp_p) = parse(packet)
         pkt_dst = ip_p.dst.decode("utf-8")
@@ -52,7 +52,7 @@ def goodput_per_packet(packets, sender_src, sender_dst) -> list((any, int)):
             # restart flow
             print("restart at ", idx)
             acked_data = []
-            _limit = 1000
+            _limit = -100
 
         if (sender_src.match(pkt_src)): # if the packet is arriving at the client
             bytes_received += packet_len(packet)
@@ -69,23 +69,42 @@ def goodput_per_packet(packets, sender_src, sender_dst) -> list((any, int)):
     t_bottom = 0
     t_top = 0
     data = []
-    print(acked_data)
+    acked_data.sort(key=lambda v: v[1])
+    print(f"analyzing: {len(acked_data)} packets")
+    ind_bottom = 0
+    ind_top = 0
     for ad in acked_data:
         t_top = ad[1]
-        t_bottom = t_top - 1000
+        t_bottom = t_top - 500
 
-        packets_in_sec = filter(\
-                        lambda pkt_t: pkt_t[1] >= t_bottom and pkt_t[1] <= t_top,\
-                        acked_data)
-        throughput = reduce(lambda s, p: s + p[0], packets_in_sec, 0)
+        ind_bottom = first_index(\
+        lambda v: v[1] > t_bottom, acked_data, start=ind_bottom)
+
+        ind_top = first_index(\
+        lambda v: v[1] >= t_top, acked_data, start=ind_top)
+        in_range = acked_data[ind_bottom: ind_top]
+        throughput = reduce(lambda s, p: s + p[0], in_range, 0)
         data.append((ad[1], throughput))
     plot_data(data)
 
+def first_index(cond, l, start=0):
+    """
+    return first index where condition f is true
+    -1 on failure
+    """
+    for i, v in enumerate(l[start:]):
+        if (cond(v)):
+            return i
+    return -1
+
 
 def plot_data(data):
-    x = map(lambda x1: x1[0], data)
-    y = map(lambda x1: x1[1], data)
-    plt.plot(data=data)
+    data.sort(key=lambda x: x[0])
+    x = [i for i in map(lambda x1: x1[0], data)]
+    y = [i for i in map(lambda x1: x1[1], data)]
+    
+    plt.plot(x, y)
+    plt.ticklabel_format(style='sci', axis='y',  scilimits=(0,0))
     plt.show()
 
 if __name__ == '__main__':
