@@ -1,6 +1,6 @@
 {
-    "name": "100mbps_compete_bbr1",
-    "time": 60,
+    "name": "100mbps_compete_cubic",
+    "time": 30,
     "setup": {
         "local": {
             "cc": "cubic",
@@ -9,52 +9,52 @@
             ]
         },
         "pi@churro1": {
-            "cc": "bbr1",
+            "cc": "cubic",
             "commands": [
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
         },
         "pi@churro2": {
-            "cc": "bbr1",
+            "cc": "cubic",
             "commands": [
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
         },
         "pi@churro3": {
-            "cc": "bbr1",
+            "cc": "cubic",
             "commands": [
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
         },
         "pi@churro4": {
-            "cc": "bbr1",
+            "cc": "cubic",
             "commands": [
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
         },
         "pi@tarta1": {
-            "cc": "bbr1",
+            "cc": "cubic",
             "commands": [
                 "iperf3 -s &",
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
         },
         "pi@tarta2": {
-            "cc": "bbr1",
+            "cc": "cubic",
             "commands": [
                 "iperf3 -s &",
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
         },
         "pi@tarta3": {
-            "cc": "bbr1",
+            "cc": "cubic",
             "commands": [
                 "iperf3 -s &",
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
         },
         "pi@tarta4": {
-            "cc": "bbr1",
+            "cc": "cubic",
             "commands": [
                 "iperf3 -s &",
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
@@ -69,22 +69,22 @@
 
         "pi@churro1": {
             "commands": [
-                "sleep 0; iperf3 -c tarta1 -t T &"
+                "iperf3 -c tarta1 -t T &"
             ]
         },
         "pi@churro2": {
             "commands": [
-                "sleep 1; iperf3 -c tarta2 -t T &"
+                "iperf3 -c tarta2 -t T &"
             ]
         },
         "pi@churro3": {
             "commands": [
-                "sleep 2; iperf3 -c tarta3 -t T &"
+                "iperf3 -c tarta3 -t T &"
             ]
         },
         "pi@churro4": {
             "commands": [
-                "sleep 3; iperf3 -c tarta4 -t T &"
+                "iperf3 -c tarta4 -t T &"
             ]
         },
         "pi@tarta1": {

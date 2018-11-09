@@ -6,6 +6,7 @@ import binascii
 import matplotlib.pyplot as plt
 import re
 from functools import reduce
+import time
 
 """
 Usage:
@@ -73,17 +74,25 @@ def goodput_per_packet(packets, sender_src, sender_dst) -> list((any, int)):
     print(f"analyzing: {len(acked_data)} packets")
     ind_bottom = 0
     ind_top = 0
+    gran = 0.3
+    idx = 0
     for ad in acked_data:
         t_top = ad[1]
-        t_bottom = t_top - 500
+        t_bottom = t_top - 1000 * gran
 
         ind_bottom = first_index(\
         lambda v: v[1] > t_bottom, acked_data, start=ind_bottom)
 
         ind_top = first_index(\
         lambda v: v[1] >= t_top, acked_data, start=ind_top)
-        in_range = acked_data[ind_bottom: ind_top]
-        throughput = reduce(lambda s, p: s + p[0], in_range, 0)
+
+        throughput = 0
+        print(f"i: {idx}, checking, {ind_top - ind_bottom} {ind_top} {ind_bottom} {t_top} {t_bottom}")
+        idx += 1
+        for i in range(ind_top, ind_bottom):
+            throughput += acked_data[i][0]
+        throughput /= gran
+
         data.append((ad[1], throughput))
     plot_data(data)
 

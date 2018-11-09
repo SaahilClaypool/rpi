@@ -1,60 +1,60 @@
 {
-    "name": "100mbps_compete_bbr1",
-    "time": 60,
+    "name": "80mbps_compete_bbr",
+    "time": 360,
     "setup": {
         "local": {
-            "cc": "cubic",
+            "cc": "bbr",
             "commands": [
-                "sudo sh 100mbps_enp3.sh"
+                "sudo sh 80mbps_enp3.sh"
             ]
         },
         "pi@churro1": {
-            "cc": "bbr1",
+            "cc": "bbr",
             "commands": [
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
         },
         "pi@churro2": {
-            "cc": "bbr1",
+            "cc": "bbr",
             "commands": [
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
         },
         "pi@churro3": {
-            "cc": "bbr1",
+            "cc": "bbr",
             "commands": [
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
         },
         "pi@churro4": {
-            "cc": "bbr1",
+            "cc": "bbr",
             "commands": [
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
         },
         "pi@tarta1": {
-            "cc": "bbr1",
+            "cc": "bbr",
             "commands": [
                 "iperf3 -s &",
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
         },
         "pi@tarta2": {
-            "cc": "bbr1",
+            "cc": "bbr",
             "commands": [
                 "iperf3 -s &",
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
         },
         "pi@tarta3": {
-            "cc": "bbr1",
+            "cc": "bbr",
             "commands": [
                 "iperf3 -s &",
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
         },
         "pi@tarta4": {
-            "cc": "bbr1",
+            "cc": "bbr",
             "commands": [
                 "iperf3 -s &",
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
@@ -69,7 +69,7 @@
 
         "pi@churro1": {
             "commands": [
-                "sleep 0; iperf3 -c tarta1 -t T &"
+                "iperf3 -c tarta1 -t T &"
             ]
         },
         "pi@churro2": {
