@@ -80,9 +80,14 @@ for host, conf in config["finish"].items():
     print(f"Running : {host}\n")
     for command in conf["commands"]:
         exec_cmd(host, command)
+
+# mkdir if it doesn't exist in results
+if (not os.path.isdir(f"Results/{name}/")):
+    os.mkdir(f"Results/{name}/")
+
 for host, conf in config["run"].items():
     cc = config["setup"][host]["cc"]
-    cmd = f"scp {host}:~/pcap.pcap Results/{name}_{cc}_{host}.pcap"
+    cmd = f"scp {host}:~/pcap.pcap Results/{name}/{cc}_{host}.pcap"
     print("running: ", cmd)
     os.system(cmd)
 

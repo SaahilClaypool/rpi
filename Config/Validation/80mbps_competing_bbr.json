@@ -1,11 +1,11 @@
 {
     "name": "80mbps_compete_bbr",
-    "time": 360,
+    "time": 120,
     "setup": {
         "local": {
             "cc": "bbr",
             "commands": [
-                "sudo sh 80mbps_enp3.sh"
+                "sudo sh 80mbps_low_latency.sh"
             ]
         },
         "pi@churro1": {

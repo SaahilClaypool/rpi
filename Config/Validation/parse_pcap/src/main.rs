@@ -9,6 +9,7 @@ extern crate rayon;
 
 use std::env;
 use std::error::Error;
+use std::collections::HashMap;
 
 use linux_api::time::timeval;
 
@@ -30,7 +31,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut reg_string = String::from(".*pcap");
     let mut dir: String = String::from(".");
     let mut output: String;
+    let mut granularity: i64 = 500;
+    let mut time_step: i64 = 200;
+
     if env::args().len() < 3 {
+        eprintln!("Args: <pcap_regex> <directory> [output_dir] [granularity] [time_step_size]");
         return Result::Err(string_error::new_err("not enough args"));
     }
     else {
@@ -39,6 +44,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                 1 => reg_string = format!(".*{}.*.pcap$", arg),
                 2 => dir = arg,
                 3 => output = arg,
+                4 => granularity = arg.parse::<i64>()?,
+                5 => time_step = arg.parse::<i64>()?,
                 _ => eprintln!("arg {} is {}", i, arg),
             }
         }
@@ -46,14 +53,36 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
 
-    files.par_iter().map(|file| {
+    let mut parsed_pcaps: Vec<(String, i64, HashMap<u16, Vec<Pkts>>)> = files.par_iter().map(|file| {
         let stem = Path::new(&file).file_stem().unwrap().to_str().unwrap();
-        eprintln!("long: {} shortpath: {}", file, stem);
-        let mut cap = open_capture(&file).unwrap();
-        let mut packets = parse_capture(cap).unwrap();
-        packets.sort_by(|a, b| a.time.cmp(&b.time));
-        let tps = calculate_throughput(&packets, 500, 200);
-        write_throughput(&format!("{}.csv", stem), tps).unwrap();
+        eprintln!("shortpath: {}", stem);
+        let cap = open_capture(&file).unwrap();
+        let (start_time, mut flow_map) = parse_capture(cap).unwrap();
+        (String::from(stem), start_time, flow_map)
+    }).collect();
+    let start_times: Vec<&i64> = parsed_pcaps.iter().map(|(_, start_time, _)| start_time ).collect();
+    let mut min_start_time = start_times[0];
+    for time in start_times {
+        if time < min_start_time {
+            min_start_time = time
+        }
+    }
+
+    let min_start_time = *min_start_time; // make it non-mutable
+
+    parsed_pcaps.par_iter_mut().map(|(stem, _, flow_map)| {
+        flow_map.iter_mut().for_each(|(port, packets)| {
+            packets.sort_by(|a, b| a.time.cmp(&b.time));
+            let tps = calculate_throughput(&packets, granularity, time_step, min_start_time);
+            let non_zero_throughput : Vec<&Throughput> = tps.iter().filter(|tp| {
+                tp.value > 200
+            }).collect();
+            if non_zero_throughput.len() > 100 {
+                let output_name = &format!("{}_{}.csv", stem, port);
+                eprintln!("flow {} has length {} nonzero len {}", output_name, tps.len(), non_zero_throughput.len());
+                write_throughput(output_name, tps).unwrap();
+            }
+        });
         ()
     }).collect::<Vec<()>>();
 
@@ -63,7 +92,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn write_throughput(filename: &str, tps: Vec<Throughput>) -> io::Result<()> {
     let mut file = fs::File::create(filename)?;
     for tp in tps {
-        file.write_fmt(format_args!("{},{}\n", tp.time, tp.value));
+        file.write_fmt(format_args!("{},{}\n", tp.time, tp.value))?;
     }
     Ok(())
 }
@@ -121,9 +150,8 @@ fn calculate_throughput_between(start: usize, end: usize, pkts: &[Pkts]) -> u32 
 }
 
 /// Takes sorted list of Pkts
-fn calculate_throughput(pkts: &[Pkts], granularity: i64, step_size: i64) -> Vec<Throughput> {
+fn calculate_throughput(pkts: &[Pkts], granularity: i64, step_size: i64, start_time: i64) -> Vec<Throughput> {
     let mut res: Vec<Throughput> = vec![];
-    let mut start_time = pkts[0].time;
     let mut t_bottom = pkts[0].time - granularity;
     let mut t_top = pkts[0].time;
     let mut bottom = 0;
@@ -182,17 +210,28 @@ fn parse(pkt: Vec<u8>, time: i64) -> Pkts {
     }
 }
 
-fn parse_capture(mut cap: Capture<Offline>) -> Result<Vec<Pkts>, Box<dyn Error>> {
-    let mut pkts: Vec<Pkts> = vec![];
+fn parse_capture(mut cap: Capture<Offline>) -> Result<(i64, HashMap<u16, Vec<Pkts>>), Box<dyn Error>> {
+    let mut flows: HashMap<u16, Vec<Pkts>> = HashMap::new();
+    let mut start_time = 0;
     while let Ok(p) = cap.next() {
         let d: Vec<u8> = p.data.iter().cloned().collect();
         let tv = timeval {
             tv_sec: p.header.ts.tv_sec,
             tv_usec: p.header.ts.tv_usec,
         };
-        pkts.push(parse(d, tv.to_milliseconds()));
+        let pkt = parse(d, tv.to_milliseconds());
+
+        if pkt.time < start_time {
+            start_time = pkt.time;
+        }
+
+        let src_port = pkt.tcp_p.get_source() as u16;
+        if !flows.contains_key(&src_port) {
+            flows.insert(src_port, vec![]);
+        }
+        flows.get_mut(&src_port).unwrap().push(pkt);
     }
-    return Ok(pkts);
+    return Ok((start_time, flows));
 }
 
 fn open_capture(st: &str) -> Result<Capture<Offline>, Box<dyn Error>> {
