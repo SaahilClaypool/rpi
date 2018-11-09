@@ -1,0 +1,9 @@
+
+1. Change rtt to 10 ms and retry experiment 
+    - should converge quickly 
+
+2. write up the testbed environ
+
+3. Try multiple flows per pi 
+    - adjust python script 
+    - adjust rust script to parse pased on source port
