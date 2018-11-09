@@ -12,10 +12,13 @@ def main():
         print("enter more args")
         exit(1)
     dirname = sys.argv[1]
-    r_pattern = re.compile(".*{}.*.csv".format(sys.argv[2]))
+    r_pattern = re.compile(".*{}.*csv".format(sys.argv[2]))
+    print(r_pattern)
     files = []
     for f in listdir(dirname):
-        if (isfile(f) and r_pattern.match(str(f))):
+        if (isfile(join(dirname, f)) and r_pattern.search(str(f))):
+            f = join(dirname, f)
+            print(f)
             plot_one(f)
     
     plt.show()
