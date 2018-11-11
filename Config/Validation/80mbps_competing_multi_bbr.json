@@ -1,5 +1,5 @@
 {
-    "name": "80mbps_compete_bbr",
+    "name": "80mbps_compete_multi_bbr",
     "time": 120,
     "setup": {
         "local": {
@@ -69,16 +69,25 @@
 
         "pi@churro1": {
             "commands": [
+                "iperf3 -c tarta1 -t T &",
+                "iperf3 -c tarta1 -t T &",
+                "iperf3 -c tarta1 -t T &",
                 "iperf3 -c tarta1 -t T &"
             ]
         },
         "pi@churro2": {
             "commands": [
+                "sleep 2; iperf3 -c tarta2 -t T &",
+                "sleep 2; iperf3 -c tarta2 -t T &",
+                "sleep 2; iperf3 -c tarta2 -t T &",
                 "sleep 2; iperf3 -c tarta2 -t T &"
             ]
         },
         "pi@churro3": {
             "commands": [
+                "sleep 4; iperf3 -c tarta3 -t T &",
+                "sleep 4; iperf3 -c tarta3 -t T &",
+                "sleep 4; iperf3 -c tarta3 -t T &",
                 "sleep 4; iperf3 -c tarta3 -t T &"
             ]
         },
