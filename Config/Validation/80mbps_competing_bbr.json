@@ -84,9 +84,6 @@
         },
         "pi@churro4": {
             "commands": [
-                "sleep 6; iperf3 -c tarta4 -t T &",
-                "sleep 6; iperf3 -c tarta4 -t T &",
-                "sleep 6; iperf3 -c tarta4 -t T &",
                 "sleep 6; iperf3 -c tarta4 -t T &"
             ]
         },
