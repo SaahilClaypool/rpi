@@ -1,6 +1,3 @@
-[submodule "Config/Validation/Dummynet"]
-	path = Config/Validation/Dummynet
-	url = https://github.com/luigirizzo/dummynet
 [submodule "Site"]
 	path = Site
 	url = https://github.com/SaahilClaypool/panaderia_doc
