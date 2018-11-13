@@ -1,11 +1,11 @@
 {
-    "name": "80mbps_compete_bbr_netem",
+    "name": "80m_bbr_tbf",
     "time": 150,
     "setup": {
         "local": {
             "cc": "bbr",
             "commands": [
-                "sudo sh 80mbps_low_latency_netem.sh"
+                "sudo sh Configs/80m_tbf.sh"
             ]
         },
         "pi@churro1": {

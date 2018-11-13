@@ -1,11 +1,11 @@
 {
-    "name": "80mbps_compete_bbr_netem",
-    "time": 150,
+    "name": "CakeMultibbr",
+    "time": 60,
     "setup": {
         "local": {
             "cc": "bbr",
             "commands": [
-                "sudo sh 80mbps_low_latency_netem.sh"
+                "sudo sh 80mbps_cake.sh"
             ]
         },
         "pi@churro1": {

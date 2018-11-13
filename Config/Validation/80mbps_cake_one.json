@@ -1,11 +1,11 @@
 {
-    "name": "80mbps_compete_bbr_netem",
-    "time": 150,
+    "name": "CakeFlow",
+    "time": 60,
     "setup": {
         "local": {
             "cc": "bbr",
             "commands": [
-                "sudo sh 80mbps_low_latency_netem.sh"
+                "sudo sh 80mbps_cake.sh"
             ]
         },
         "pi@churro1": {
@@ -74,17 +74,14 @@
         },
         "pi@churro2": {
             "commands": [
-                "sleep 2; iperf3 -c tarta2 -t T &"
             ]
         },
         "pi@churro3": {
             "commands": [
-                "sleep 4; iperf3 -c tarta3 -t T &"
             ]
         },
         "pi@churro4": {
             "commands": [
-                "sleep 6; iperf3 -c tarta4 -t T &"
             ]
         },
         "pi@tarta1": {
