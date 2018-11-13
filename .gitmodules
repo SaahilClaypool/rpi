@@ -1,6 +1,6 @@
 [submodule "Site"]
 	path = Site
-	url = https://github.com/SaahilClaypool/panaderia_doc
+	url = https://github.com/SaahilClaypool/panaderia
 [submodule "NetworkTools"]
 	path = NetworkTools
 	url = git@github.com:SaahilClaypool/NetworkTools.git
