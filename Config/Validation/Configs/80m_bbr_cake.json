@@ -1,11 +1,11 @@
 {
-    "name": "80m_bbr_tbf",
-    "time": 60,
+    "name": "80m_bbr_cake",
+    "time": 150,
     "setup": {
         "local": {
             "cc": "bbr",
             "commands": [
-                "sudo sh Configs/80m_tbf.sh"
+                "sudo sh Configs/80m_cake.sh"
             ]
         },
         "pi@churro1": {

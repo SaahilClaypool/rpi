@@ -1,11 +1,11 @@
 {
-    "name": "80m_bbr_tbf",
-    "time": 60,
+    "name": "80m_bbr_ethtool",
+    "time": 150,
     "setup": {
         "local": {
             "cc": "bbr",
             "commands": [
-                "sudo sh Configs/80m_tbf.sh"
+                "sudo sh Configs/80m_ethtool.sh"
             ]
         },
         "pi@churro1": {
@@ -108,6 +108,7 @@
         "local": {
             "commands": [
                 "sudo sh 10mbps_enp3_off.sh",
+                "sudo sh Configs/ethtool_off.sh",
                 "sudo tc -s qdisc ls dev enp3s0"
             ]
         },

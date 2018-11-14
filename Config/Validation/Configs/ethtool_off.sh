@@ -1,0 +1,1 @@
+sudo ethtool -s enp3s0 speed 1000 duplex full autoneg on

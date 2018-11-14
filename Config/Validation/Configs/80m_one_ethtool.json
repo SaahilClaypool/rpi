@@ -1,11 +1,11 @@
 {
-    "name": "80m_bbr_tbf",
+    "name": "80m_one_ethtool",
     "time": 60,
     "setup": {
         "local": {
             "cc": "bbr",
             "commands": [
-                "sudo sh Configs/80m_tbf.sh"
+                "sudo sh Configs/80m_ethtool.sh"
             ]
         },
         "pi@churro1": {
@@ -74,17 +74,14 @@
         },
         "pi@churro2": {
             "commands": [
-                "sleep 2; iperf3 -c tarta2 -t T &"
             ]
         },
         "pi@churro3": {
             "commands": [
-                "sleep 4; iperf3 -c tarta3 -t T &"
             ]
         },
         "pi@churro4": {
             "commands": [
-                "sleep 6; iperf3 -c tarta4 -t T &"
             ]
         },
         "pi@tarta1": {
@@ -108,6 +105,7 @@
         "local": {
             "commands": [
                 "sudo sh 10mbps_enp3_off.sh",
+                "sudo sh Configs/ethtool_off.sh",
                 "sudo tc -s qdisc ls dev enp3s0"
             ]
         },
