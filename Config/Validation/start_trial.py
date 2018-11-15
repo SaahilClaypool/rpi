@@ -16,7 +16,8 @@ def c(host, cmd):
     turn into remote version of command
     """
     cmd = cmd.replace("&", "")
-    cmd = cmd.replace("-t T", f"-t {trial_time}")
+    cmd = cmd.replace("T", f"{trial_time}")
+    cmd = cmd.replace("{T}", f"{trial_time}")
     if (host != 'local'):
         cmd_clean = f"ssh {host} "
         cmd_clean += "\"" + cmd + "\""
