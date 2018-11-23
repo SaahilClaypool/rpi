@@ -69,22 +69,22 @@
 
         "pi@churro1": {
             "commands": [
-                "./ServerSender client tarta1 5201 T 4 1 &"
+                "./ServerSender client tarta1 5201 {T} 4 1 &"
             ]
         },
         "pi@churro2": {
             "commands": [
-                "sleep 2; ./ServerSender client tarta2 5201 T 4 1 &"
+                "sleep 2; ./ServerSender client tarta2 5201 {T} 4 1 &"
             ]
         },
         "pi@churro3": {
             "commands": [
-                "sleep 4; ./ServerSender client tarta3 5201 T 4 1 &"
+                "sleep 4; ./ServerSender client tarta3 5201 {T} 4 1 &"
             ]
         },
         "pi@churro4": {
             "commands": [
-                "sleep 6; ./ServerSender client tarta4 5201 T 4 1 &"
+                "sleep 6; ./ServerSender client tarta4 5201 {T} 4 1 &"
             ]
         },
         "pi@tarta1": {

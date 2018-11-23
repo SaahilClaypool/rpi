@@ -69,7 +69,7 @@
 
         "pi@churro1": {
             "commands": [
-                "iperf3 -c tarta1 -t T &"
+                "iperf3 -c tarta1 -t {T} &"
             ]
         },
         "pi@churro2": {
