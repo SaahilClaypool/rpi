@@ -46,7 +46,7 @@
         },
         "pi@churro2": {
             "commands": [
-                "iperf3 -c tarta2 -t T &"
+                "iperf3 -c tarta2 -t {T} &"
             ]
         },
         "pi@tarta1": {
@@ -55,7 +55,7 @@
         },
         "pi@churro1": {
             "commands": [
-                "iperf3 -c tarta1 -t T &"
+                "iperf3 -c tarta1 -t {T} &"
             ]
         }
     }, 

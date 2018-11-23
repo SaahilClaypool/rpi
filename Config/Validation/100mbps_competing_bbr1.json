@@ -69,22 +69,22 @@
 
         "pi@churro1": {
             "commands": [
-                "sleep 0; iperf3 -c tarta1 -t T &"
+                "sleep 0; iperf3 -c tarta1 -t {T} &"
             ]
         },
         "pi@churro2": {
             "commands": [
-                "sleep 1; iperf3 -c tarta2 -t T &"
+                "sleep 1; iperf3 -c tarta2 -t {T} &"
             ]
         },
         "pi@churro3": {
             "commands": [
-                "sleep 2; iperf3 -c tarta3 -t T &"
+                "sleep 2; iperf3 -c tarta3 -t {T} &"
             ]
         },
         "pi@churro4": {
             "commands": [
-                "sleep 3; iperf3 -c tarta4 -t T &"
+                "sleep 3; iperf3 -c tarta4 -t {T} &"
             ]
         },
         "pi@tarta1": {
