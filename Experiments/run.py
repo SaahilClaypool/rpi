@@ -12,14 +12,15 @@ START_TRIAL = f"{CUR_DIR}/start_trial.py"
 
 
 def main():
-    print("run_one")
     parser = argparse.ArgumentParser(description="Orchestrate a set of experiments")
     parser.add_argument("name", help="name of ouput")
     parser.add_argument("--directory", "-d", required=True)
-    parser.add_argument("--build", "-b")
-    parser.add_argument("--trial", "-t")
+    parser.add_argument("--build", "-b", action='store_true', default=False)
+    parser.add_argument("--parse", "-p", action='store_true', default=False)
+    parser.add_argument("--rerun", "-r", action='store_true', default=False)
     parser.add_argument("--granularity", "-g", default="")
-    parser.add_argument("--show", "-s", default="")
+    parser.add_argument("--show", "-s", action='store_const', const="show", default="false")
+    parser.add_argument("--time", "-T", default="0")
     
     args = parser.parse_args()
     print(args)
@@ -27,11 +28,11 @@ def main():
     if (args.build):
         os.system(f"cd {TOOLS_DIR}/Parse_pcap; cargo build --release; cd -;" )
 
-    if (args.trial):
+    if (args.rerun):
         trial_cmd = f"""\
         cd {args.directory};
         mkdir Results;
-        {START_TRIAL} {args.trial};
+        {START_TRIAL} config.json {args.name} {args.time};
         """
         os.system(trial_cmd)
         off_cmd = f"""\
@@ -45,7 +46,8 @@ def main():
     rm *.csv; {PARSE_PCAP} '.*' '.' {args.granularity};
     cd -;
     """
-    os.system(parse_cmd)
+    if (args.parse or args.rerun):
+        os.system(parse_cmd)
 
     plot_cmd = f"""\
     cd {args.directory}/Results;

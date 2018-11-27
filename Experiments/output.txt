@@ -1,0 +1,12 @@
+/home/saahil/raspberry/rpi/Experiments
+['/home/saahil/raspberry/rpi/Experiments/../NetworkTools/Parse_pcap/plot.py', '.', '.', '80m_single.png', 'show']
+re.compile('.*..*csv')
+./bbr_pi@churro1_43764.csv
+./bbr_pi@tarta1_43762.csv
+./bbr_pi@tarta1_43764.csv
+./bbr_pi@churro1_43762.csv
+setting label to  throughput
+setting label to  inflight
+setting label to  rtt
+/home/saahil/raspberry/rpi/Experiments
+Namespace(build=True, directory='./Configs/80m_one_tbf/', granularity='', name='80m_single', parse=False, show='show', time='60', trial=None)

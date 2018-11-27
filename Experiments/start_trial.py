@@ -6,10 +6,15 @@ import json
 import threading
 from typing import Dict
 
-if (not (len(sys.argv) == 2 or len(sys.argv) == 3)):
-    print(f"error: enter one or two args, you enetered {len(sys.argv)} args")
+_TIME = 0
+
+if (not (len(sys.argv) == 2 or len(sys.argv) == 3 or len(sys.argv) == 4)):
+    print(f"usage: 1: file 2: name 3: time")
+    print(sys.argv)
     exit()
 
+if (len(sys.argv) == 4):
+    _TIME = int(sys.argv[3])
 
 def c(host, cmd):
     """
@@ -52,7 +57,10 @@ sudo sysctl net.ipv4.tcp_congestion_control;
 
 config: Dict = json.loads(open(sys.argv[1], 'r').read())
 name = config["name"]
+
 trial_time = config["time"]
+if (_TIME != 0):
+    trial_time = _TIME
 if (len(sys.argv) > 2):
     name = sys.argv[2]
 print(config)
@@ -82,12 +90,12 @@ for host, conf in config["finish"].items():
         exec_cmd(host, command)
 
 # mkdir if it doesn't exist in results
-if (not os.path.isdir(f"Results/{name}/")):
-    os.mkdir(f"Results/{name}/")
+if (not os.path.isdir(f"Results/")):
+    os.mkdir(f"Results/")
 
 for host, conf in config["run"].items():
     cc = config["setup"][host]["cc"]
-    cmd = f"scp {host}:~/pcap.pcap Results/{name}/{cc}_{host}.pcap"
+    cmd = f"scp {host}:~/pcap.pcap Results/{cc}_{host}.pcap"
     print("running: ", cmd)
     os.system(cmd)
 
