@@ -8,6 +8,7 @@ PARSE_PCAP = f"{TOOLS_DIR}/Parse_pcap/target/release/parse_pcap"
 PLOT_PCAP = f"{TOOLS_DIR}/Parse_pcap/plot.py"
 
 START_TRIAL = f"{CUR_DIR}/start_trial.py"
+RECORD_LOCAL = f"{CUR_DIR}/record_local.py"
 
 
 
@@ -28,13 +29,21 @@ def main():
     if (args.build):
         os.system(f"cd {TOOLS_DIR}/Parse_pcap; cargo build --release; cd -;" )
 
+    local_time = 60
+    if (int(args.time) != 0):
+        local_time = int(args.time)
+
     if (args.rerun):
         trial_cmd = f"""\
         cd {args.directory};
         mkdir Results;
+        rm Results/*;
+        {RECORD_LOCAL} {local_time} Results/queue_length.csv 10 &
         {START_TRIAL} config.json {args.name} {args.time};
         """
+
         os.system(trial_cmd)
+
         off_cmd = f"""\
         sudo tc qdisc del dev enp3s0 root
         tc -s qdisc ls dev enp3s0
@@ -43,7 +52,7 @@ def main():
 
     parse_cmd = f"""\
     cd {args.directory}/Results;
-    rm *.csv; {PARSE_PCAP} '.*' '.' {args.granularity};
+    rm .*pi@*.csv; {PARSE_PCAP} '.*' '.' {args.granularity};
     cd -;
     """
     if (args.parse or args.rerun):
