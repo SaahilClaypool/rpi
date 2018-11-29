@@ -14,6 +14,7 @@ patternM = (r"backlog (?P<num>\d*)Mb")
 def main():
     t = 60
     out = sys.stdout
+    raw_output = open("raw.txt", 'w')
     if (len(sys.argv) > 1):
         t = int(sys.argv[1]) # seconds
     if (len(sys.argv) > 2):
@@ -23,14 +24,15 @@ def main():
         print("waiting for : ", sys.argv[3])
         time.sleep(int(sys.argv[3]))
     for i in range(int(t / .1)):
-        buffer_len = get_current_buffer()
+        buffer_len = get_current_buffer(raw_output)
         print(time.time(), ",", buffer_len, file=out)
         time.sleep(.1)
     if (len(sys.argv) > 2):
         print("Finished writing to ", sys.argv[2], "after time", t)
         out.close()
+    close(raw_output)
 
-def get_current_buffer():
+def get_current_buffer(raw_output):
     """
     return the current number of bytes in the tbf
     ignore the duplicate tbf and the netem queue
@@ -40,6 +42,7 @@ def get_current_buffer():
     # get the ouptut from the system call
     output = os.popen("sudo tc -s qdisc ls dev enp3s0").read()
     has_skipped_netem = False
+    print(output, file=raw_output)
     for line in output.split("\n"):
         # it looks like the tbf share a buffer
         # So, the we only need to recor the first one seen
@@ -57,7 +60,7 @@ def get_current_buffer():
             if (not has_skipped_netem):
                 has_skipped_netem = True
                 continue
-            bytes_in_buffer = 100 * int(matchK.group("num"))
+            bytes_in_buffer = 1024 * int(matchK.group("num"))
             return  bytes_in_buffer
         elif (matchM):
             if (not has_skipped_netem):
