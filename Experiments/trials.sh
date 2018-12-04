@@ -1,8 +1,3 @@
-./run.py 80m_converge --directory ./Configs/80m_tbf/ \
-    --show  \
-    --build \
-    --rerun \
-    --time 60
-./run.py 80m_single -d ./Configs/80m_one_tbf/ --show no --build yep
+# ./run.py graphs --directory ./Configs/80m_cubic_tbf/ --time 60 --show --rerun
+ ./run.py changing --directory ./Configs/Dynamic_Change/ --time 60 --rerun
 
-./run.py 80m_single_bbr1 --directory ./Configs/80m_one_bbr1 --show --time 60 --parse --rerun

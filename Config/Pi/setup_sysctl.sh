@@ -79,16 +79,16 @@ net.ipv4.ip_forward=1
 #fs.protected_symlinks=0
 net.core.default_qdisc=fq
 net.ipv4.tcp_congestion_control=cubic
-net.core.rmem_max=4194304
-net.core.wmem_max=4194304
-net.core.rmem_default=65536
-#net.core.wmem_default=131072
-#net.core.wmem_default=3245728
-net.core.wmem_default=716800
-net.ipv4.tcp_rmem=4096 524288 8388608
-net.ipv4.tcp_wmem=10240 524288 8388608
-#net.ipv4.tcp_wmem=10240 3245728 8388608
-net.ipv4.tcp_mem=8388608 8388608 8388608
+# net.core.rmem_max=4194304
+# net.core.wmem_max=4194304
+# net.core.rmem_default=65536
+# #net.core.wmem_default=131072
+# #net.core.wmem_default=3245728
+# net.core.wmem_default=716800
+# net.ipv4.tcp_rmem=4096 524288 8388608
+# net.ipv4.tcp_wmem=10240 524288 8388608
+# #net.ipv4.tcp_wmem=10240 3245728 8388608
+# net.ipv4.tcp_mem=8388608 8388608 8388608
 net.ipv4.route.flush=1
 " > /etc/sysctl.conf'
 

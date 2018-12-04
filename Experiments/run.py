@@ -52,7 +52,7 @@ def main():
 
     parse_cmd = f"""\
     cd {args.directory}/Results;
-    rm .*pi@*.csv; {PARSE_PCAP} '.*' '.' '.' {args.granularity};
+    rm .*@*.csv; {PARSE_PCAP} '.*' '.' '.' {args.granularity};
     cd -;
     """
     if (args.parse or args.rerun):
