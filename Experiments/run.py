@@ -60,8 +60,8 @@ def main():
 
     plot_cmd = f"""\
     cd {args.directory}/Results;
-    {PLOT_PCAP} . . {args.name}.png {args.show}
-    mv {args.name}.png ..;
+    {PLOT_PCAP} . . {args.name}.svg {args.show}
+    mv {args.name}.svg ..;
     cd -;
     """
     os.system(plot_cmd)
