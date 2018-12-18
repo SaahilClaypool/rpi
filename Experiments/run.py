@@ -61,7 +61,7 @@ def main():
     plot_cmd = f"""\
     cd {args.directory}/Results;
     {PLOT_PCAP} . . {args.name}.svg {args.show}
-    mv {args.name}.svg ..;
+    mv *svg ..;
     cd -;
     """
     os.system(plot_cmd)
