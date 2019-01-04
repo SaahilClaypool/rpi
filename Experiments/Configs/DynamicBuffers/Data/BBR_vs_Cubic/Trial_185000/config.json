@@ -3,7 +3,7 @@
     "time": 60,
     "setup": {
         "local": {
-            "cc": "bbr",
+            "cc": "cubic",
             "commands": [
                 "sudo sh 80m_tbf.sh"
             ]
@@ -21,13 +21,13 @@
             ]
         },
         "pi@churro3": {
-            "cc": "bbr",
+            "cc": "cubic",
             "commands": [
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
         },
         "pi@churro4": {
-            "cc": "bbr",
+            "cc": "cubic",
             "commands": [
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
@@ -47,14 +47,14 @@
             ]
         },
         "pi@tarta3": {
-            "cc": "bbr",
+            "cc": "cubic",
             "commands": [
                 "./ServerSender server 0.0.0.0 &",
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
             ]
         },
         "pi@tarta4": {
-            "cc": "bbr",
+            "cc": "cubic",
             "commands": [
                 "./ServerSender server 0.0.0.0 &",
                 "sudo tcpdump 'tcp port 5201' -w pcap.pcap -s 96 &"
@@ -79,7 +79,7 @@
         },
         "pi@churro3": {
             "commands": [
-                "sleep 4; ./ServerSender client tarta2 5201 {T} 1 1 &"
+                "sleep 4; ./ServerSender client tarta4 5201 {T} 1 1 &"
             ]
         },
         "pi@churro4": {
