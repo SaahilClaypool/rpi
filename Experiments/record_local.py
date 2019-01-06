@@ -90,7 +90,7 @@ def get_current_buffer(raw_output):
     """
 
     # get the ouptut from the system call
-    output = os.popen("sudo tc -s qdisc ls dev enp3s0").read()
+    output = os.popen("sudo tc -s qdisc ls dev enp2s0").read()
     has_skipped_netem = False
     print(output, file=raw_output)
     queue = get_current_queue(output)

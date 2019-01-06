@@ -18,24 +18,25 @@ import matplotlib as mpl
 should_show = False
 
 BDP =       300000
-min_bytes = 50000
+min_bytes = 100000
 max_bytes = 500000
-steps = 10
+steps = 20
 trial_time = 120
-trial_number = 3
+trial_number = 1
 
 executable = "/home/saahil/raspberry/rpi/Experiments/run.py "
 
 tbf_string = """\
-sudo tc qdisc del dev enp3s0 root
+sudo tc qdisc del dev enp2s0 root
 sleep 5
-sudo tc qdisc add dev enp3s0 root handle 1:0 netem delay 10ms limit 1000
-sudo tc qdisc add dev enp3s0 parent 1:1 handle 10: tbf rate 80mbit buffer 1mbit limit 1000mbit 
-sudo tc qdisc add dev enp3s0 parent 10:1 handle 100: tbf rate 80mbit burst .05mbit limit {}b
-sudo tc -s qdisc ls dev enp3s0
+sudo tc qdisc add dev enp2s0 root handle 1:0 netem delay 10ms limit 5000
+sudo tc qdisc add dev enp2s0 parent 1:1 handle 10: tbf rate 80mbit buffer 1mbit limit 10000mbit
+sudo tc qdisc add dev enp2s0 parent 10:1 handle 100: tbf rate 80mbit burst .05mbit limit {}b
+sudo tc -s qdisc ls dev enp2s0
 """
 
-sub_folders = ["BBR", "Cubic", "BBR_vs_Cubic"]
+# sub_folders = ["BBR", "Cubic", "BBR_vs_Cubic"]
+sub_folders = ["BBR"]
 
 
 def get_bytes(min_bytes=min_bytes, max_bytes=max_bytes, steps=steps):
@@ -57,6 +58,8 @@ def generate_sub_experiments(folders=sub_folders, remove=False):
         experiment_folders = []
         folder = "/".join(["Data", folder])
         config = "/".join([folder, "config.json"])
+        if (remove):
+            os.system(f"rm -rf {folder}/Trial.*")
 
         for byte in get_bytes():
             for trial in range(trial_number):
@@ -105,13 +108,13 @@ def plot_exiperments(folder, experiment_folders):
         with open(queue_file) as csvfile:
             reader = csv.DictReader(csvfile, skipinitialspace=True)
             rows = [row for row in reader]
-            startup_cutoff = int(0.10 * len(rows))
+            startup_cutoff = int(0.40 * len(rows))
             end_cutoff = int(0.90 * len(rows))
             sent = float(rows[end_cutoff]['sent']) - float(rows[startup_cutoff]['sent'])
             drops = float(rows[end_cutoff]['drops']) - float(rows[startup_cutoff]['drops'])
             drop_rate = drops / sent
             print(f"sent: {sent}, drops: {drops}, drop_rate: {drop_rate}")
-            queue_size.append(byte)
+            queue_size.append(int(byte))
             drop_rates.append(drop_rate * 100)
 
     for rate in zip(queue_size, drop_rates):
@@ -119,6 +122,7 @@ def plot_exiperments(folder, experiment_folders):
     plt.scatter(queue_size, drop_rates)
     plt.xlabel("queue size (bytes)")
     plt.ylabel("drop_rate (percent)")
+    plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
     plt.savefig(f"{folder}/drop_rate.svg")
     if (should_show):
         plt.show()

@@ -95,6 +95,8 @@ if (not os.path.isdir(f"Results/")):
 
 off_cmd = f"""\
 sudo tc qdisc del dev enp3s0 root
+sudo tc qdisc del dev enp2s0 root
+sudo tc qdisc del dev enp1s0 root
 sudo tc -s qdisc ls dev enp3s0
 """
 os.system(off_cmd)
