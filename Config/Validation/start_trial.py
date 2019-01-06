@@ -90,5 +90,3 @@ for host, conf in config["run"].items():
     cmd = f"scp {host}:~/pcap.pcap Results/{name}/{cc}_{host}.pcap"
     print("running: ", cmd)
     os.system(cmd)
-
-os.system("sh ./10mbps_enp3_off.sh")

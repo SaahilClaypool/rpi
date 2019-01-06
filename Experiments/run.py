@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import os
 import argparse
+import time
 
 CUR_DIR = os.getcwd()
 # TOOLS_DIR = f"{CUR_DIR}/../NetworkTools"
@@ -48,9 +49,10 @@ def main():
 
         off_cmd = f"""\
         sudo tc qdisc del dev enp3s0 root
-        tc -s qdisc ls dev enp3s0
+        sudo tc -s qdisc ls dev enp3s0
         """
         os.system(off_cmd)
+        time.sleep(10)
 
     parse_cmd = f"""\
     cd {args.directory}/Results;

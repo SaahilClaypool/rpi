@@ -93,6 +93,12 @@ for host, conf in config["finish"].items():
 if (not os.path.isdir(f"Results/")):
     os.mkdir(f"Results/")
 
+off_cmd = f"""\
+sudo tc qdisc del dev enp3s0 root
+sudo tc -s qdisc ls dev enp3s0
+"""
+os.system(off_cmd)
+
 for host, conf in config["run"].items():
     cc = config["setup"][host]["cc"]
     cmd = f"scp {host}:~/pcap.pcap Results/{cc}_{host}.pcap"
