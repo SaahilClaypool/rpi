@@ -5,7 +5,7 @@
         "local": {
             "cc": "bbr",
             "commands": [
-                "sudo sh tbf.sh"
+                "sudo sh 80m_tbf.sh"
             ]
         },
         "pi@churro1": {
@@ -79,11 +79,12 @@
         },
         "pi@churro3": {
             "commands": [
+                "sleep 4; ./ServerSender client tarta2 5201 {T} 1 1 &"
             ]
         },
         "pi@churro4": {
             "commands": [
-                "sleep 4; ./ServerSender client tarta4 5201 {T} 1 1 &"
+                "sleep 6; ./ServerSender client tarta4 5201 {T} 1 1 &"
             ]
         },
         "pi@tarta1": {

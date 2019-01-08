@@ -84,6 +84,14 @@ for host, conf in config["run"].items():
 for handle in run_handles:
     handle.join()
 
+off_cmd = f"""\
+sudo tc qdisc del dev enp3s0 root
+sudo tc qdisc del dev enp2s0 root
+sudo tc qdisc del dev enp1s0 root
+sudo tc -s qdisc ls dev enp3s0
+"""
+os.system(off_cmd)
+
 for host, conf in config["finish"].items():
     print(f"Running : {host}\n")
     for command in conf["commands"]:
@@ -92,14 +100,6 @@ for host, conf in config["finish"].items():
 # mkdir if it doesn't exist in results
 if (not os.path.isdir(f"Results/")):
     os.mkdir(f"Results/")
-
-off_cmd = f"""\
-sudo tc qdisc del dev enp3s0 root
-sudo tc qdisc del dev enp2s0 root
-sudo tc qdisc del dev enp1s0 root
-sudo tc -s qdisc ls dev enp3s0
-"""
-os.system(off_cmd)
 
 for host, conf in config["run"].items():
     cc = config["setup"][host]["cc"]

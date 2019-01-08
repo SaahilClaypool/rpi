@@ -20,8 +20,8 @@ should_show = False
 BDP =       300000
 min_bytes = 100000
 max_bytes = 500000
-steps = 20
-trial_time = 120
+steps = 40
+trial_time = 300
 trial_number = 1
 
 executable = "/home/saahil/raspberry/rpi/Experiments/run.py "
@@ -59,7 +59,9 @@ def generate_sub_experiments(folders=sub_folders, remove=False):
         folder = "/".join(["Data", folder])
         config = "/".join([folder, "config.json"])
         if (remove):
-            os.system(f"rm -rf {folder}/Trial.*")
+            remove_cmd = f"rm -rf {folder}/Trial*"
+            print(remove_cmd)
+            os.system(remove_cmd)
 
         for byte in get_bytes():
             for trial in range(trial_number):
@@ -108,8 +110,8 @@ def plot_exiperments(folder, experiment_folders):
         with open(queue_file) as csvfile:
             reader = csv.DictReader(csvfile, skipinitialspace=True)
             rows = [row for row in reader]
-            startup_cutoff = int(0.40 * len(rows))
-            end_cutoff = int(0.90 * len(rows))
+            startup_cutoff = int(0.50 * len(rows))
+            end_cutoff = int(0.85 * len(rows))
             sent = float(rows[end_cutoff]['sent']) - float(rows[startup_cutoff]['sent'])
             drops = float(rows[end_cutoff]['drops']) - float(rows[startup_cutoff]['drops'])
             drop_rate = drops / sent
@@ -120,6 +122,7 @@ def plot_exiperments(folder, experiment_folders):
     for rate in zip(queue_size, drop_rates):
         print("rate is: ", rate)
     plt.scatter(queue_size, drop_rates)
+    plt.title(folder)
     plt.xlabel("queue size (bytes)")
     plt.ylabel("drop_rate (percent)")
     plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
