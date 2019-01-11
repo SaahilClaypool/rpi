@@ -79,6 +79,7 @@
         },
         "pi@churro3": {
             "commands": [
+                "sleep 4; ./ServerSender client tarta3 5201 {T} 1 1 &"
             ]
         },
         "pi@churro4": {

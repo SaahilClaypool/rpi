@@ -37,8 +37,8 @@ sudo tc qdisc add dev enp3s0 parent 10:1 handle 100: tbf rate {throughput}mbit b
 sudo tc -s qdisc ls dev enp3s0
 """
 
-# sub_folders = ["BBR", "Cubic", "BBR_vs_Cubic"]
-sub_folders = ["BBR"]
+sub_folders = ["BBR", "Cubic", "BBR_vs_Cubic"]
+# sub_folders = ["BBR"]
 
 def bytes_to_mbits(b):
     return b / 125000
@@ -173,16 +173,18 @@ def plot_experiments(folder, experiment_folders):
 
 def plot_drop_rate(queue_size, drop_rates):
     # plot drop rate
-    plot_bdp()
+    bdp = plot_bdp()
+    queue_size = list(map(lambda v : v / bdp, queue_size))
     plt.plot(queue_size, drop_rates)
     plt.title(folder)
-    plt.xlabel("queue size (mega bytes)")
+    plt.xlabel("queue size (multiples of BDP)")
     plt.ylabel("drop_rate (percent)")
     # plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
     plt.ticklabel_format(style='sci', axis='x')
     plt.legend()
     plt.ylim(bottom=0)
-    plt.xlim(left=bytes_to_mbytes(min_bytes), right=bytes_to_mbytes(max_bytes))
+    # plt.xlim(left=bytes_to_mbytes(min_bytes), right=bytes_to_mbytes(max_bytes))
+    plt.xlim(left=bytes_to_mbytes(min_bytes) / bdp, right=bytes_to_mbytes(max_bytes) / bdp)
     plt.savefig(f"{folder}/drop_rate.svg")
     if (should_show):
         plt.show()
@@ -192,15 +194,20 @@ def plot_drop_rate(queue_size, drop_rates):
 def plot_bdp():
     bdp = calc_bdp()
     bdp_1_5  = bdp * 1.5
-    plt.axvline(x = bdp, label="BDP", color="orange", linestyle="--")
-    plt.axvline(x = bdp_1_5, label="1.5 * BDP", color="green", linestyle="--")
+    # plt.axvline(x = bdp, label="BDP", color="orange", linestyle="--")
+    plt.axvline(x = 1, label="BDP", color="orange", linestyle="--")
+    # plt.axvline(x = bdp_1_5, label="1.5 * BDP", color="green", linestyle="--")
+    plt.axvline(x = 1.5, label="1.5 * BDP", color="green", linestyle="--")
+    return bdp
 
-def calc_bdp(min_rtt=15):
+def calc_bdp(min_rtt=delay_ms + 4):
     throughput_mbyte = mbits_to_bytes(bytes_to_mbytes(throughput_mbit))
     return throughput_mbyte * min_rtt / 1000
 
 
 def plot_throughput(queue_size, throughputs):
+    bdp = plot_bdp()
+    queue_size = list(map(lambda v : v / bdp, queue_size))
     for protocol, rates in throughputs.items():
         # rates = list(map(bytes_to_mbits, rates))
         plt.plot(queue_size, rates, label=protocol)
@@ -208,12 +215,13 @@ def plot_throughput(queue_size, throughputs):
     x_data = list(map(bytes_to_mbytes, [min_bytes, max_bytes]))
     y_data = [throughput_mbit, throughput_mbit]
     plt.plot(x_data, y_data, label="Max Bandwidth")
-    plot_bdp()
     plt.title(folder)
     plt.ylim(bottom=0, top=throughput_mbit + 10)
-    plt.xlim(left=bytes_to_mbytes(min_bytes), right=bytes_to_mbytes(max_bytes))
+    # plt.xlim(left=bytes_to_mbytes(min_bytes), right=bytes_to_mbytes(max_bytes))
+    plt.xlim(left=bytes_to_mbytes(min_bytes) / bdp, right=bytes_to_mbytes(max_bytes) / bdp)
     plt.legend()
     # plt.xlabel("queue size (mega bytes)")
+    plt.xlabel("queue size (multiples of BDP)")
     plt.ylabel("total throughput (mbits / second)")
     # plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
     plt.ticklabel_format(style='sci', axis='x')
