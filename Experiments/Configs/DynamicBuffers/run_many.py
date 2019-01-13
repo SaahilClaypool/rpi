@@ -15,14 +15,20 @@ import os
 import argparse
 import csv
 import matplotlib as mpl
+from collections import defaultdict
 
 should_show = False
+
+colors = {
+    "bbr": "blue",
+    "cubic": "orange"
+}
 
 min_bytes = 100000
 max_bytes = 500000
 steps = 40
 trial_time = 300
-trial_number = 1
+trial_number = 2
 throughput_mbit = 80
 delay_ms = 10
 
@@ -41,17 +47,22 @@ sudo tc -s qdisc ls dev enp3s0
 sub_folders = ["BBR", "Cubic", "BBR_vs_Cubic"]
 # sub_folders = ["BBR"]
 
+
 def bytes_to_mbits(b):
     return b / 125000
+
 
 def bytes_to_mbytes(b):
     return b / 1000000
 
+
 def mbits_to_bytes(b):
     return b * 125000
 
+
 def mbytes_to_bytes(b):
     return b * 1000000
+
 
 def get_bytes(min_bytes=min_bytes, max_bytes=max_bytes, steps=steps):
     for bytes in [min_bytes + i * (max_bytes - min_bytes) / steps
@@ -67,6 +78,7 @@ def generate_sub_experiments(folders=sub_folders, remove=False):
 
     yeild a bunch of experiment folders (full paths)
     """
+    counter = 0
     all_folders = []
     for folder in folders:
         experiment_folders = []
@@ -80,6 +92,8 @@ def generate_sub_experiments(folders=sub_folders, remove=False):
         for byte in get_bytes():
             for trial in range(trial_number):
                 new_folder = "/".join([folder, f"Trial_{byte}_{trial}"])
+                counter = counter + 1
+                print("on folder: ", new_folder, counter)
                 if (os.path.isdir(new_folder)):
                     if (remove):
                         os.system(f"rm -rf {new_folder}")
@@ -88,14 +102,14 @@ def generate_sub_experiments(folders=sub_folders, remove=False):
                     os.mkdir(new_folder)
 
                 os.system(f"cp {config} {new_folder}")
-                tbf = tbf_string.format(buffer=byte, throughput=throughput_mbit, delay=delay_ms)
+                tbf = tbf_string.format(
+                    buffer=byte, throughput=throughput_mbit, delay=delay_ms)
                 tbf_file = "/".join([new_folder, "tbf.sh"])
                 with open(tbf_file, 'w') as f:
                     print(tbf, file=f)
                 experiment_folders.append(new_folder)
         all_folders.append((folder, experiment_folders))
     return all_folders
-
 
 
 def run_sub_experiments(experiment_folders, parse=False, plot=False):
@@ -108,6 +122,7 @@ def run_sub_experiments(experiment_folders, parse=False, plot=False):
             run_cmd = f"{executable} result --directory {experiment_folder} --time {trial_time}"
         os.system(run_cmd)
 
+
 def get_drop_rate(queue_file):
     """
     get the drop rate from the given queue file.
@@ -117,15 +132,19 @@ def get_drop_rate(queue_file):
         rows = [row for row in reader]
         startup_cutoff = int(0.50 * len(rows))
         end_cutoff = int(0.85 * len(rows))
-        sent = float(rows[end_cutoff]['sent']) - float(rows[startup_cutoff]['sent'])
-        drops = float(rows[end_cutoff]['drops']) - float(rows[startup_cutoff]['drops'])
+        sent = float(rows[end_cutoff]['sent']) - \
+            float(rows[startup_cutoff]['sent'])
+        drops = float(rows[end_cutoff]['drops']) - \
+            float(rows[startup_cutoff]['drops'])
         drop_rate = drops / sent
         return drop_rate * 100
+
+
 def get_average_throughput(tp_file, start=.5, end=.8):
     """
     get the average, q1, q3 throughput of the flow between start and end percent
     """
-    with open (tp_file) as csvfile:
+    with open(tp_file) as csvfile:
         reader = csv.DictReader(csvfile, skipinitialspace=True)
         rows = [row for row in reader]
         rows = rows[int(len(rows) * start): int(len(rows) * end)]
@@ -135,18 +154,20 @@ def get_average_throughput(tp_file, start=.5, end=.8):
         total = sum(tps) / len(rows)
 
     return total, q1, q3
+
+
 def plot_experiments(folder, experiment_folders):
     """
     For each folder,
     get the drop rate (dropped / sent) at 99\% - 1\% to cut off
     the startup
     """
-    queue_size  = []
-    drop_rates  = []
+    queue_size = []
+    drop_rates = []
     throughputs = {}
-    t_q1        = {}
-    t_q3        = {}
-    rtts        = []
+    t_q1 = {}
+    t_q3 = {}
+    rtts = []
 
     for experiment_folder in experiment_folders:
         basename = os.path.basename(experiment_folder)
@@ -159,7 +180,7 @@ def plot_experiments(folder, experiment_folders):
         drop_rates.append(drop_rate)
         # Relative Throughput
         # Find all csv files ignoring queue length
-        result_directory= "/".join([experiment_folder, "Results"])
+        result_directory = "/".join([experiment_folder, "Results"])
         current_throughputs = {}
         for tp_file in os.listdir(result_directory):
             if tp_file.endswith(".csv") and tp_file != "queue_length.csv" and "tarta" in tp_file:
@@ -167,7 +188,8 @@ def plot_experiments(folder, experiment_folders):
                 tp = (os.path.join(result_directory, tp_file))
                 if not protocol in current_throughputs.keys():
                     current_throughputs[protocol] = []
-                current_throughputs[protocol].append(get_average_throughput(tp))
+                current_throughputs[protocol].append(
+                    get_average_throughput(tp))
 
         for protocol, values in current_throughputs.items():
             tps, s_q1, s_q3 = [], [], []
@@ -175,26 +197,76 @@ def plot_experiments(folder, experiment_folders):
                 tps.append(tp)
                 s_q1.append(q1)
                 s_q3.append(q3)
-            avg = sum(tps) # / len(tps)
-            avg_q1 = sum(s_q1) # / len(tps)
-            avg_q3 = sum(s_q3) # / len(tps)
+            total = sum(tps)  # / len(tps)
+            total_q1 = sum(s_q1)  # / len(tps)
+            total_q3 = sum(s_q3)  # / len(tps)
 
             if not protocol in throughputs.keys():
                 throughputs[protocol] = []
-            throughputs[protocol].append(avg)
+            throughputs[protocol].append(total)
 
             if not protocol in t_q1.keys():
                 t_q1[protocol] = []
-            t_q1[protocol].append(avg_q1)
+            t_q1[protocol].append(total_q1)
 
             if not protocol in t_q3.keys():
                 t_q3[protocol] = []
-            t_q3[protocol].append(avg_q3)
+            t_q3[protocol].append(total_q3)
 
     queue_size = list(map(bytes_to_mbytes, queue_size))
+    protocol_map = average_over_trials(queue_size, throughputs, t_q1, t_q3, drop_rates)
+    throughputs = defaultdict(list)
+    t_q1 = defaultdict(list)
+    t_q3 = defaultdict(list)
+    queue_size = []
+    drop_rates = []
+    for protocol, results in protocol_map.items():
+        queue_size = []
+        drop_rates = []
+        for result in results:
+            queue_size.append(result[0])
+            throughputs[protocol].append(result[1])
+            t_q1[protocol].append(result[2])
+            t_q3[protocol].append(result[3])
+            drop_rates.append(result[4])
+    # need to group and average over the buffer size
+    print(f"len queue: {len(queue_size)}, dr: {len(drop_rates)}, tp: {len(throughputs)}")
     plot_drop_rate(queue_size, drop_rates)
     plot_throughput(queue_size, throughputs)
     plot_throughput(queue_size, throughputs, t_q1, t_q3)
+
+
+def average_over_trials(queue_size, throughputs, t_q1, t_q3, drop_rates):
+    """
+    given the list of queue sizes, and the dictionaries for prot: values for the above,
+    return (qsize, dict {prot: (mean, q1, a3)})
+    """
+    gr_values = {}
+    for prot in throughputs.keys():
+        gr_values[prot] = {}
+        for qsize, tp, q1, q3, drop_rate in zip(queue_size, throughputs[prot], t_q1[prot], t_q3[prot], drop_rates):
+            if qsize not in gr_values[prot]:
+                gr_values[prot][qsize] = []
+            gr_values[prot][qsize].append((tp, q1, q3, drop_rate))
+    # gr values maps each prot to queue_
+    result = {}
+    for prot, values in gr_values.items():
+        tps, q1s, q3s = [], [], []
+        result[prot] = []
+        for queue, trial_results in values.items():
+            avg_tp, avg_q1, avg_q3, avg_dr = 0, 0, 0, 0
+            for tp, q1, q3, dr in trial_results:
+                avg_tp += tp
+                avg_q1 += q1
+                avg_q3 += q3
+                avg_dr += dr
+            avg_tp /= len(trial_results)
+            avg_q1 /= len(trial_results)
+            avg_q3 /= len(trial_results)
+            avg_dr /= len(trial_results)
+            result[prot].append((queue, avg_tp, avg_q1, avg_q3, avg_dr))
+
+    return result
 
 
 def percentile(numbers, percentile=50):
@@ -203,9 +275,12 @@ def percentile(numbers, percentile=50):
 
 
 def plot_drop_rate(queue_size, drop_rates):
+    """
+    Takes in queue size in terms of mbytes
+    """
     # plot drop rate
     bdp = plot_bdp()
-    queue_size = list(map(lambda v : v / bdp, queue_size))
+    queue_size = list(map(lambda v: v / bdp, queue_size))
     plt.plot(queue_size, drop_rates)
     plt.title(folder)
     plt.xlabel("queue size (multiples of BDP)")
@@ -215,20 +290,23 @@ def plot_drop_rate(queue_size, drop_rates):
     plt.legend()
     plt.ylim(bottom=0)
     # plt.xlim(left=bytes_to_mbytes(min_bytes), right=bytes_to_mbytes(max_bytes))
-    plt.xlim(left=bytes_to_mbytes(min_bytes) / bdp, right=bytes_to_mbytes(max_bytes) / bdp)
+    plt.xlim(left=bytes_to_mbytes(min_bytes) / bdp,
+             right=bytes_to_mbytes(max_bytes) / bdp)
     plt.savefig(f"{folder}/drop_rate.svg")
     if (should_show):
         plt.show()
     plt.close()
 
+
 def plot_bdp():
     bdp = calc_bdp()
-    bdp_1_5  = bdp * 1.5
+    bdp_1_5 = bdp * 1.5
     # plt.axvline(x = bdp, label="BDP", color="orange", linestyle="--")
-    plt.axvline(x = 1, label="BDP", color="orange", linestyle="--")
+    plt.axvline(x=1, label="BDP", color="orange", linestyle="--")
     # plt.axvline(x = bdp_1_5, label="1.5 * BDP", color="green", linestyle="--")
-    plt.axvline(x = 1.5, label="1.5 * BDP", color="green", linestyle="--")
+    plt.axvline(x=1.5, label="1.5 * BDP", color="green", linestyle="--")
     return bdp
+
 
 def calc_bdp(min_rtt=delay_ms + 4):
     throughput_mbyte = mbits_to_bytes(bytes_to_mbytes(throughput_mbit))
@@ -237,18 +315,26 @@ def calc_bdp(min_rtt=delay_ms + 4):
 
 def plot_throughput(queue_size, throughputs, q1=None, q3=None):
     bdp = plot_bdp()
-    queue_size = list(map(lambda v : v / bdp, queue_size))
+    # remove duplicates from trials... this could be moved to average_over_trials
+    queue_size = list(map(lambda v: v / bdp, queue_size))
     for protocol, rates in throughputs.items():
         # rates = list(map(bytes_to_mbits, rates))
-        plt.plot(queue_size, rates, label=protocol)
+        plt.plot(queue_size, rates, label=protocol, color=colors[protocol])
     # Plot Quartiles
     if q1 is not None and q3 is not None:
+        alpha = 0.3
         for protocol, rates in q1.items():
             # rates = list(map(bytes_to_mbits, rates))
-            plt.plot(queue_size, rates, label=f"{protocol} Q1")
+            plt.plot(queue_size, rates,
+                     label=f"{protocol} Q1", color=colors[protocol], alpha=alpha)
+            plt.fill_between(
+                queue_size, throughputs[protocol], rates, color=colors[protocol], alpha=alpha / 3)
         for protocol, rates in q3.items():
             # rates = list(map(bytes_to_mbits, rates))
-            plt.plot(queue_size, rates, label=f"{protocol} Q3")
+            plt.plot(queue_size, rates,
+                     label=f"{protocol} Q3", color=colors[protocol], alpha=alpha)
+            plt.fill_between(
+                queue_size, throughputs[protocol], rates, color=colors[protocol], alpha=alpha / 3)
 
     # plot the total throughput
     x_data = list(map(bytes_to_mbytes, [min_bytes, max_bytes]))
@@ -258,8 +344,9 @@ def plot_throughput(queue_size, throughputs, q1=None, q3=None):
     plt.title(folder)
     plt.ylim(bottom=0, top=throughput_mbit + 10)
     # plt.xlim(left=bytes_to_mbytes(min_bytes), right=bytes_to_mbytes(max_bytes))
-    plt.xlim(left=bytes_to_mbytes(min_bytes) / bdp, right=bytes_to_mbytes(max_bytes) / bdp)
-    plt.legend()
+    plt.xlim(left=bytes_to_mbytes(min_bytes) / bdp,
+             right=bytes_to_mbytes(max_bytes) / bdp)
+    plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
     # plt.xlabel("queue size (mega bytes)")
     plt.xlabel("queue size (multiples of BDP)")
     plt.ylabel("total throughput (mbits / second)")
@@ -275,11 +362,9 @@ def plot_throughput(queue_size, throughputs, q1=None, q3=None):
     plt.close()
 
 
-
-
-
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Orchestrate a set of experiments")
+    parser = argparse.ArgumentParser(
+        description="Orchestrate a set of experiments")
     parser.add_argument("--rerun", "-r", action='store_true', default=False)
     parser.add_argument("--reparse", "-p", action='store_true', default=False)
     parser.add_argument("--replot", action='store_true', default=False)
