@@ -15,6 +15,7 @@ import os
 import argparse
 import csv
 import matplotlib as mpl
+import json 
 from collections import defaultdict
 
 should_show = False
@@ -44,7 +45,15 @@ sudo tc qdisc add dev enp3s0 parent 10:1 handle 100: tbf rate {throughput}mbit b
 sudo tc -s qdisc ls dev enp3s0
 """
 
-sub_folders = ["BBR", "Cubic", "BBR_vs_Cubic"]
+sub_folders = [
+    "40_BBR_vs_Cubic_2",
+    "80_BBR_vs_Cubic_2",
+    "120_BBR_vs_Cubic_2",
+    "40_BBR_vs_Cubic_4",
+    "80_BBR_vs_Cubic_4",
+    "120_BBR_vs_Cubic_4",
+]
+# sub_folders = ["BBR", "Cubic", "BBR_vs_Cubic"]
 # sub_folders = ["BBR"]
 
 
@@ -69,6 +78,13 @@ def get_bytes(min_bytes=min_bytes, max_bytes=max_bytes, steps=steps):
                   for i in range(steps + 1)]:
         yield int(bytes)
 
+def frac_bdp_to_bytes(point):
+    print(f"point: {point}")
+    # bdp = calc_bdp --> bdp in mbytes / second
+    bdp_m_s = calc_bdp(delay_ms + 1)
+    bdp_bytes_s = mbytes_to_bytes(bdp_m_s)
+    return int(bdp_bytes_s * point)
+
 
 def generate_sub_experiments(folders=sub_folders, remove=False):
     """
@@ -78,18 +94,22 @@ def generate_sub_experiments(folders=sub_folders, remove=False):
 
     yeild a bunch of experiment folders (full paths)
     """
+    global trial_number, trial_time, throughput_mbit, delay_ms, max_bytes, min_bytes
     counter = 0
     all_folders = []
+    byte_steps = [i for i in get_bytes()]
     for folder in folders:
         experiment_folders = []
         folder = "/".join(["Data", folder])
         config = "/".join([folder, "config.json"])
+        byte_steps = load_config(folder)
         if (remove):
             remove_cmd = f"rm -rf {folder}/Trial*"
             print(remove_cmd)
             os.system(remove_cmd)
 
-        for byte in get_bytes():
+        print("byte steps", byte_steps)
+        for byte in byte_steps:
             for trial in range(trial_number):
                 new_folder = "/".join([folder, f"Trial_{byte}_{trial}"])
                 counter = counter + 1
@@ -162,12 +182,13 @@ def plot_experiments(folder, experiment_folders):
     get the drop rate (dropped / sent) at 99\% - 1\% to cut off
     the startup
     """
+    print(f"Loading config from {folder}")
+    load_config(folder)
     queue_size = []
     drop_rates = []
     throughputs = {}
     t_q1 = {}
     t_q3 = {}
-    rtts = []
 
     for experiment_folder in experiment_folders:
         basename = os.path.basename(experiment_folder)
@@ -280,7 +301,10 @@ def plot_drop_rate(queue_size, drop_rates):
     """
     # plot drop rate
     bdp = plot_bdp()
+    old_queue_size = queue_size
     queue_size = list(map(lambda v: v / bdp, queue_size))
+    for old, new in zip(old_queue_size, queue_size):
+        print(f"old: {old}, new: {new}")
     plt.plot(queue_size, drop_rates)
     plt.title(folder)
     plt.xlabel("queue size (multiples of BDP)")
@@ -292,6 +316,7 @@ def plot_drop_rate(queue_size, drop_rates):
     # plt.xlim(left=bytes_to_mbytes(min_bytes), right=bytes_to_mbytes(max_bytes))
     plt.xlim(left=bytes_to_mbytes(min_bytes) / bdp,
              right=bytes_to_mbytes(max_bytes) / bdp)
+    plt.tight_layout()
     plt.savefig(f"{folder}/drop_rate.svg")
     if (should_show):
         plt.show()
@@ -299,18 +324,20 @@ def plot_drop_rate(queue_size, drop_rates):
 
 
 def plot_bdp():
-    bdp = calc_bdp()
+    bdp = calc_bdp(delay_ms + 1)
     bdp_1_5 = bdp * 1.5
     # plt.axvline(x = bdp, label="BDP", color="orange", linestyle="--")
-    plt.axvline(x=1, label="BDP", color="orange", linestyle="--")
+    plt.axvline(x=1, label="BDP", color="red", linestyle="--")
     # plt.axvline(x = bdp_1_5, label="1.5 * BDP", color="green", linestyle="--")
     plt.axvline(x=1.5, label="1.5 * BDP", color="green", linestyle="--")
     return bdp
 
 
-def calc_bdp(min_rtt=delay_ms + 4):
+def calc_bdp(min_rtt=delay_ms + 1):
+    print(f"calculating bdp with delay = {min_rtt}")
     throughput_mbyte = mbits_to_bytes(bytes_to_mbytes(throughput_mbit))
-    return throughput_mbyte * min_rtt / 1000
+    bdp = throughput_mbyte * min_rtt / 1000
+    return bdp
 
 
 def plot_throughput(queue_size, throughputs, q1=None, q3=None):
@@ -337,9 +364,9 @@ def plot_throughput(queue_size, throughputs, q1=None, q3=None):
                 queue_size, throughputs[protocol], rates, color=colors[protocol], alpha=alpha / 3)
 
     # plot the total throughput
-    x_data = list(map(bytes_to_mbytes, [min_bytes, max_bytes]))
-    y_data = [throughput_mbit, throughput_mbit]
-    plt.plot(x_data, y_data, label="Max Bandwidth")
+    # x_data = list(map(bytes_to_mbytes, [min_bytes, max_bytes]))
+    # y_data = [throughput_mbit, throughput_mbit]
+    # plt.plot(x_data, y_data, label="Max Bandwidth")
 
     plt.title(folder)
     plt.ylim(bottom=0, top=throughput_mbit + 10)
@@ -352,6 +379,7 @@ def plot_throughput(queue_size, throughputs, q1=None, q3=None):
     plt.ylabel("total throughput (mbits / second)")
     # plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
     plt.ticklabel_format(style='sci', axis='x')
+    plt.tight_layout()
     if q1 is None:
         plt.savefig(f"{folder}/throughput.svg")
     else:
@@ -361,6 +389,22 @@ def plot_throughput(queue_size, throughputs, q1=None, q3=None):
         plt.show()
     plt.close()
 
+def load_config(folder):
+    global trial_number, trial_time, throughput_mbit, delay_ms, max_bytes, min_bytes
+    trials_config = "/".join([folder, "trials_config.json"])
+    if os.path.isfile(trials_config):
+        json_input = open(trials_config).read()
+        print(json_input)
+        params = json.loads(json_input)
+        print(params)
+        trial_number = params["trials"]
+        trial_time = params["time"]
+        throughput_mbit = params["tp"]
+        delay_ms = params["delay"]
+        byte_steps = [i for i in map(frac_bdp_to_bytes, params["points"])]
+        min_bytes = byte_steps[0]
+        max_bytes = byte_steps[-1]
+        return byte_steps
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -369,6 +413,7 @@ if __name__ == "__main__":
     parser.add_argument("--reparse", "-p", action='store_true', default=False)
     parser.add_argument("--replot", action='store_true', default=False)
     parser.add_argument("--show", "-s", action='store_true', default=False)
+    parser.add_argument("--clean", "-c", action='store_true', default=False)
     args = parser.parse_args()
     print(args)
 
@@ -381,7 +426,10 @@ if __name__ == "__main__":
         import matplotlib.pyplot as plt
         plt.ioff()
 
-    experiments = generate_sub_experiments(remove=args.rerun)
+    experiments = generate_sub_experiments(remove=args.rerun or args.clean)
+    for exp, sub_exp in experiments:
+        print(exp)
+        print(len(sub_exp))
 
     if (args.rerun):
         for _folder, experiment_folders in experiments:
