@@ -22,6 +22,7 @@ should_show = False
 
 colors = {
     "bbr": "blue",
+    "bbrshallow": "blue",
     "cubic": "orange"
 }
 
@@ -46,24 +47,30 @@ sudo tc -s qdisc ls dev enp3s0
 """
 
 sub_folders = [
-    "40_BBR_vs_Cubic_2",
-    "80_BBR_vs_Cubic_2",
-    "120_BBR_vs_Cubic_2",
-    "40_BBR_vs_Cubic_4",
-    "80_BBR_vs_Cubic_4",
-    "120_BBR_vs_Cubic_4",
-    "40_BBR_vs_Cubic_8",
-    "80_BBR_vs_Cubic_8",
-    "120_BBR_vs_Cubic_8",
-    "40_BBR_2",
-    "80_BBR_2",
-    "120_BBR_2",
-    "40_BBR_4",
-    "80_BBR_4",
-    "120_BBR_4",
-    "40_BBR_8",
-    "80_BBR_8",
-    "120_BBR_8",
+    # "40_BBR_vs_Cubic_2",
+    # "80_BBR_vs_Cubic_2",
+    # "120_BBR_vs_Cubic_2",
+    # "40_BBR_vs_Cubic_4",
+    # "80_BBR_vs_Cubic_4",
+    # "120_BBR_vs_Cubic_4",
+    # "40_BBR_vs_Cubic_8",
+    # "80_BBR_vs_Cubic_8",
+    # "120_BBR_vs_Cubic_8",
+    # "40_BBR_2",
+    # "80_BBR_2",
+    # "120_BBR_2",
+    # "40_BBR_4",
+    # "80_BBR_4",
+    # "120_BBR_4",
+    # "40_BBR_8",
+    # "80_BBR_8",
+    # "120_BBR_8",
+    # "40_BBR_shallow_4",
+    # "80_BBR_shallow_4",
+    # "120_BBR_shallow_4",
+    "40_BBR_vs_Cubic_shallow_4",
+    "80_BBR_vs_Cubic_shallow_4",
+    "120_BBR_vs_Cubic_shallow_4",
 ]
 # sub_folders = ["BBR", "Cubic", "BBR_vs_Cubic"]
 # sub_folders = ["BBR"]
