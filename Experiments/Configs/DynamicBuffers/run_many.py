@@ -15,7 +15,7 @@ import os
 import argparse
 import csv
 import matplotlib as mpl
-import json 
+import json
 from collections import defaultdict
 
 should_show = False
@@ -47,27 +47,27 @@ sudo tc -s qdisc ls dev enp3s0
 """
 
 sub_folders = [
-    # "40_BBR_vs_Cubic_2",
-    # "80_BBR_vs_Cubic_2",
-    # "120_BBR_vs_Cubic_2",
-    # "40_BBR_vs_Cubic_4",
-    # "80_BBR_vs_Cubic_4",
-    # "120_BBR_vs_Cubic_4",
-    # "40_BBR_vs_Cubic_8",
-    # "80_BBR_vs_Cubic_8",
-    # "120_BBR_vs_Cubic_8",
-    # "40_BBR_2",
-    # "80_BBR_2",
-    # "120_BBR_2",
-    # "40_BBR_4",
-    # "80_BBR_4",
-    # "120_BBR_4",
-    # "40_BBR_8",
-    # "80_BBR_8",
-    # "120_BBR_8",
-    # "40_BBR_shallow_4",
-    # "80_BBR_shallow_4",
-    # "120_BBR_shallow_4",
+    "40_BBR_vs_Cubic_2",
+    "80_BBR_vs_Cubic_2",
+    "120_BBR_vs_Cubic_2",
+    "40_BBR_vs_Cubic_4",
+    "80_BBR_vs_Cubic_4",
+    "120_BBR_vs_Cubic_4",
+    "40_BBR_vs_Cubic_8",
+    "80_BBR_vs_Cubic_8",
+    "120_BBR_vs_Cubic_8",
+    "40_BBR_2",
+    "80_BBR_2",
+    "120_BBR_2",
+    "40_BBR_4",
+    "80_BBR_4",
+    "120_BBR_4",
+    "40_BBR_8",
+    "80_BBR_8",
+    "120_BBR_8",
+    "40_BBR_shallow_4",
+    "80_BBR_shallow_4",
+    "120_BBR_shallow_4",
     "40_BBR_vs_Cubic_shallow_4",
     "80_BBR_vs_Cubic_shallow_4",
     "120_BBR_vs_Cubic_shallow_4",
@@ -98,7 +98,6 @@ def get_bytes(min_bytes=min_bytes, max_bytes=max_bytes, steps=steps):
         yield int(bytes)
 
 def frac_bdp_to_bytes(point):
-    print(f"point: {point}")
     # bdp = calc_bdp --> bdp in mbytes / second
     bdp_m_s = calc_bdp(delay_ms + 1)
     bdp_bytes_s = mbytes_to_bytes(bdp_m_s)
@@ -270,7 +269,6 @@ def plot_experiments(folder, experiment_folders):
             t_q3[protocol].append(result[3])
             drop_rates.append(result[4])
     # need to group and average over the buffer size
-    print(f"len queue: {len(queue_size)}, dr: {len(drop_rates)}, tp: {len(throughputs)}")
     plot_drop_rate(queue_size, drop_rates)
     plot_throughput(queue_size, throughputs)
     plot_throughput(queue_size, throughputs, t_q1, t_q3)
@@ -322,8 +320,6 @@ def plot_drop_rate(queue_size, drop_rates):
     bdp = plot_bdp()
     old_queue_size = queue_size
     queue_size = list(map(lambda v: v / bdp, queue_size))
-    for old, new in zip(old_queue_size, queue_size):
-        print(f"old: {old}, new: {new}")
     plt.plot(queue_size, drop_rates)
     plt.title(folder)
     plt.xlabel("queue size (multiples of BDP)")
@@ -353,7 +349,6 @@ def plot_bdp():
 
 
 def calc_bdp(min_rtt=delay_ms + 1):
-    print(f"calculating bdp with delay = {min_rtt}")
     throughput_mbyte = mbits_to_bytes(bytes_to_mbytes(throughput_mbit))
     bdp = throughput_mbyte * min_rtt / 1000
     return bdp
@@ -413,7 +408,6 @@ def load_config(folder):
     trials_config = "/".join([folder, "trials_config.json"])
     if os.path.isfile(trials_config):
         json_input = open(trials_config).read()
-        print(json_input)
         params = json.loads(json_input)
         print(params)
         trial_number = params["trials"]
@@ -433,6 +427,7 @@ if __name__ == "__main__":
     parser.add_argument("--replot", action='store_true', default=False)
     parser.add_argument("--show", "-s", action='store_true', default=False)
     parser.add_argument("--clean", "-c", action='store_true', default=False)
+    parser.add_argument("--backup", "-b", action='store_true', default=False)
     args = parser.parse_args()
     print(args)
 
@@ -446,6 +441,16 @@ if __name__ == "__main__":
         plt.ioff()
 
     experiments = generate_sub_experiments(remove=args.rerun or args.clean)
+    if (args.backup):
+        for folder in experiments:
+            exp = folder[0].split("/")[1]
+            sub_folders = folder[1]
+            print(f"mkdir ~/Data/{exp}")
+            os.system(f"mkdir ~/Data/{exp}")
+            for f in sub_folders:
+                print(f"backing up {f} to ~/Data/{exp}")
+                os.system(f"rsync -r {f} ~/Data/{exp}")
+
     for exp, sub_exp in experiments:
         print(exp)
         print(len(sub_exp))
