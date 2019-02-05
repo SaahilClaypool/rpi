@@ -272,6 +272,16 @@ def plot_experiments(folder, experiment_folders):
     plot_drop_rate(queue_size, drop_rates)
     plot_throughput(queue_size, throughputs)
     plot_throughput(queue_size, throughputs, t_q1, t_q3)
+    totals_to_csv(f"{folder}/summary.csv", queue_size, drop_rates, throughputs, t_q1, t_q3)
+
+def totals_to_csv(filename, queue_size, drop_rates, throughputs, t_q1, t_q3):
+    bdp = calc_bdp(delay_ms + 1)
+    queue_size = list(map(lambda v: v / bdp, queue_size))
+    with open(filename, 'w') as outfile:
+        print("queue_size,drop_rate,throughput,t_q1,t_q3,protocol", file=outfile)
+        for protocol in throughputs.keys():
+            for entry in zip(queue_size, drop_rates, throughputs[protocol], t_q1[protocol], t_q3[protocol]):
+                print(f"{entry[0]},{entry[1]},{entry[2]},{entry[3]},{entry[4]},{protocol}", file=outfile)
 
 
 def average_over_trials(queue_size, throughputs, t_q1, t_q3, drop_rates):
