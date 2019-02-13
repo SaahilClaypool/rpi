@@ -72,8 +72,9 @@ sub_folders = [
     # "40_BBR_vs_Cubic_shallow_4",
     # "80_BBR_vs_Cubic_shallow_4",
     # "120_BBR_vs_Cubic_shallow_4",
-    "80_BBR2_4",
-    "80_BBR2_vs_Cubic_4",
+    # "80_BBR2_4",
+    # "80_BBR2_vs_Cubic_4",
+    "80_Cubic_4",
 ]
 # sub_folders = ["BBR", "Cubic", "BBR_vs_Cubic"]
 # sub_folders = ["BBR"]
