@@ -1,6 +1,6 @@
 {
     "name": "",
-    "time": 60,
+    "time": 65,
     "setup": {
         "local": {
             "cc": "bbr",
@@ -64,8 +64,8 @@
     "run": {
         "local": {
             "commands": [
-                "sleep 20; sudo sh change_40_tbf.sh &",
-                "sleep 40; sudo sh change_20_tbf.sh &"
+                "sleep 25; sudo sh change_40_tbf.sh &",
+                "sleep 45; sudo sh change_20_tbf.sh &"
             ]
         },
 
